@@ -56,6 +56,19 @@
     try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (_) {}
   }
   function releaseWakeLock() { if (wakeLock) { const lock = wakeLock; wakeLock = null; lock.release().catch(() => {}); } }
+  function setSettingsOpen(open) {
+    const panel = $('settingsPanel');
+    const backdrop = $('settingsBackdrop');
+    panel.hidden = !open;
+    backdrop.hidden = !open;
+    document.body.classList.toggle('settings-open', open);
+    $('settingsBtn').setAttribute('aria-expanded', String(open));
+    if (open) {
+      requestAnimationFrame(() => $('closeSettingsBtn').focus());
+    } else if (document.activeElement === $('closeSettingsBtn')) {
+      $('settingsBtn').focus();
+    }
+  }
   function setInputValues() {
     for (const [id, key] of Object.entries(numberFields)) $(id).value = settings[key];
     $('roundCount').textContent = settings.rounds;
@@ -234,6 +247,12 @@
     syncPlan(); renderExercises(); $('exerciseList').lastElementChild.querySelector('input').focus();
   });
   $('restoreBtn').addEventListener('click', () => { settings = normalize(DEFAULTS); syncPlan(); renderExercises(); say('Standard-Workout wiederhergestellt.'); });
+  $('settingsBtn').addEventListener('click', () => setSettingsOpen(true));
+  $('closeSettingsBtn').addEventListener('click', () => setSettingsOpen(false));
+  $('settingsBackdrop').addEventListener('click', () => setSettingsOpen(false));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !$('settingsPanel').hidden) setSettingsOpen(false);
+  });
   $('soundBtn').addEventListener('click', () => { settings.sound = !settings.sound; saveSettings(); setInputValues(); if (settings.sound) { prepareAudio(); tone(860, .15); } });
   $('playBtn').addEventListener('click', play);
   $('previousBtn').addEventListener('click', () => skip(-1));
