@@ -1,6 +1,6 @@
 # PULSE – HIIT Timer
 
-Eine installierbare, offline-fähige HIIT-Web-App ohne Framework, Build-Prozess, Accounts oder externe Ressourcen. Standardsession: 60 s Aufwärmen, fünf Übungen à 40 s, 20 s Übungspause, drei Runden, 60 s Rundenpause nach jeder Runde einschließlich der letzten. Gesamtdauer: 18 Minuten inklusive Rundenpause nach der letzten Runde.
+Eine installierbare, offline-fähige HIIT-Web-App ohne Framework, Build-Prozess, Accounts oder externe Ressourcen. Standardsession: 60 s Aufwärmen, fünf Übungen à 40 s, 20 s Übungspause, drei Runden, 60 s Rundenpause nach jeder Runde einschließlich der letzten. Gesamtdauer: 18 Minuten inklusive Rundenpause nach der letzten Runde. Standardübungen: Liegestütze, Stehende Kurzhantel-Bizepscurls, Kniebeugen mit Hanteln, Schulterdrücken mit Kurzhanteln und Sit-Ups.
 
 ## Lokal starten
 
