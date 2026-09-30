@@ -102,3 +102,6 @@ body.settings-open{overflow:hidden}
 .transfer-copy>strong{font-size:14px;letter-spacing:-.2px}
 .transfer-copy>p{margin:0;color:#8fa2af;font-size:11px;line-height:1.45}
 .transfer-card .transfer-actions{margin-top:12px}
+
+/* prevent-double-tap-zoom */
+html,body,.app-shell,button{touch-action:manipulation}
