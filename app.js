@@ -6,6 +6,7 @@
   const circumference = 2 * Math.PI * 139;
   const phases = { warmup: 'BEREIT MACHEN', work: 'VOLLGAS GEBEN', rest: 'KURZ DURCHATMEN', roundRest: 'RUNDENPAUSE', complete: 'GESCHAFFT!' };
   const numberFields = { workInput: 'work', restInput: 'rest', roundRestInput: 'roundRest', warmupInput: 'warmup' };
+  const legacyDefaultExercises = ['Jump Squats', 'Plank Walk', 'Jump Lunges', 'Cross Body Mountain Climbers', 'Burpee mit Tuck Jump'];
   let settings = loadSettings();
   let plan = createPlan(settings);
   let state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
@@ -18,10 +19,24 @@
   let swReloading = false;
   let swReloadPending = false;
 
+  function isLegacyDefaultSettings(value) {
+    return value && typeof value === 'object' &&
+      Number(value.work) === 40 && Number(value.rest) === 20 && Number(value.roundRest) === 60 &&
+      Number(value.warmup) === 60 && Number(value.rounds) === 3 && value.sound !== false &&
+      Array.isArray(value.exercises) && value.exercises.length === legacyDefaultExercises.length &&
+      value.exercises.every((name, index) => name === legacyDefaultExercises[index]);
+  }
   function loadSettings() {
     try {
       const raw = localStorage.getItem(storageKey);
-      return raw ? normalize(JSON.parse(raw)) : normalize(DEFAULTS);
+      if (!raw) return normalize(DEFAULTS);
+      const parsed = JSON.parse(raw);
+      if (isLegacyDefaultSettings(parsed)) {
+        const migrated = normalize({ ...parsed, exercises: [...DEFAULTS.exercises] });
+        localStorage.setItem(storageKey, JSON.stringify(migrated));
+        return migrated;
+      }
+      return normalize(parsed);
     } catch (_) { return normalize(DEFAULTS); }
   }
   function saveSettings() { try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch (_) {} }
