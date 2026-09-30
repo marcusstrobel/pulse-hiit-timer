@@ -31,7 +31,7 @@ body.settings-open{overflow:hidden}
  .intro .eyebrow{display:none}
  .intro h1{font-size:27px;line-height:1.02;letter-spacing:-1.3px;margin:0}
  .intro p{display:none}
- .timer-panel{max-width:none;padding:15px 13px 13px;border-radius:16px;min-height:calc(100dvh - 118px - env(safe-area-inset-top))}
+ .timer-panel{max-width:none;padding:15px 13px 13px;border-radius:16px;min-height:0;height:auto;align-self:start}
  .panel-top{align-items:flex-start}
  .section-kicker{font-size:9px;letter-spacing:1.25px}
  .round-badge{font-size:8px;padding:7px 8px}
@@ -70,7 +70,7 @@ body.settings-open{overflow:hidden}
 }
 @media(max-width:390px) and (max-height:700px){
  .intro{display:none}
- .timer-panel{min-height:calc(100dvh - 74px - env(safe-area-inset-top))}
+ .timer-panel{min-height:0;height:auto}
  .phase-pill{margin-top:8px}
  .dial-wrap{width:min(66vw,235px);margin-top:4px}
  .time-display{font-size:58px}
