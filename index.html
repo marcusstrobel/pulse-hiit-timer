@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101b29">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PULSE HIIT">
+  <meta name="description" content="Dein anpassbarer HIIT-Timer mit Runden, Übungspausen und Offline-Modus.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./timer-core.js"></script>
+  <script defer src="./app.js"></script>
+  <title>PULSE · HIIT Timer</title>
+</head>
+<body>
+ <div class="background-glow" aria-hidden="true"></div>
+ <div class="app-shell">
+  <header class="topbar">
+   <a class="brand" href="./" aria-label="PULSE HIIT Startseite"><span class="brand-mark"><span></span><span></span><span></span></span><span>PULSE<span class="brand-dot">.</span></span></a>
+   <div class="top-actions"><span class="header-tag"><span class="online-dot"></span> DEIN WORKOUT. DEIN TEMPO.</span><button id="soundBtn" type="button" class="icon-button" aria-label="Ton ausschalten" aria-pressed="true" title="Ton an / aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 5-5 4H3v6h3l5 4V5Z"/><path class="sound-waves" d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/><path class="sound-off" d="m16 9 5 6m0-6-5 6"/></svg></button></div>
+  </header>
+  <main>
+    <div class="intro"><div class="eyebrow"><span class="eyebrow-line"></span> TRAINING STATT AUSREDEN</div><h1>Jede Sekunde <em>zählt.</em></h1><p>Dein Intervall. Dein Rhythmus. Dein nächstes Level.</p></div>
+    <div class="dashboard">
+      <section class="timer-panel" aria-labelledby="timer-heading">
+       <div class="panel-top"><span class="section-kicker">DEINE SESSION <span class="kicker-line"></span> <span id="sessionNumber">01 / 03</span></span><span class="round-badge" id="roundBadge">RUNDE 1 VON 3</span></div>
+       <div id="phasePill" class="phase-pill phase-warmup"><span class="pulse-dot"></span><span id="phaseText">BEREIT MACHEN</span></div>
+       <h2 id="timer-heading" class="exercise-title">Warm-up</h2>
+       <p class="next-title" id="nextText">Danach: Jump Squats</p>
+       <div class="dial-wrap" id="dialWrap">
+        <svg class="dial" viewBox="0 0 320 320" aria-hidden="true"><circle class="dial-track" cx="160" cy="160" r="139"/><circle id="dialProgress" class="dial-progress" cx="160" cy="160" r="139" transform="rotate(-90 160 160)"/></svg>
+        <div class="dial-inner"><span class="time-label" id="timeLabel">START IN</span><div id="timeDisplay" class="time-display" role="timer" aria-label="Noch 1 Minute">01:00</div><span id="dialDetail" class="dial-detail">60 SEKUNDEN</span></div>
+       </div>
+       <div class="progress-info"><span>WORKOUT-FORTSCHRITT</span><strong id="progressPercent">0 %</strong></div>
+       <div class="progress-track"><div id="overallProgress" class="progress-fill"></div></div>
+       <div class="controls"><button type="button" class="transport secondary" id="previousBtn" title="Zurück" aria-label="Vorheriges Intervall"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 5h2v14H5zM18.5 5v14L8 12z"/></svg></button><button type="button" class="main-button" id="playBtn"><svg id="playIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m8 5 12 7-12 7V5Z"/></svg><span id="playLabel">WORKOUT STARTEN</span></button><button type="button" class="transport secondary" id="nextBtn" title="Weiter" aria-label="Nächstes Intervall"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 5h2v14h-2zM5.5 5v14L16 12z"/></svg></button></div>
+       <div class="timer-footer"><button id="resetBtn" type="button" class="text-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg> NEU STARTEN</button><button id="fullscreenBtn" type="button" class="text-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg> VOLLBILD</button></div>
+       <div class="sr-only" id="screenreaderUpdates" aria-live="polite" aria-atomic="true"></div>
+      </section>
+      <section class="setup-panel" aria-label="Trainingsplan"><div class="setup-top"><div><div class="eyebrow tiny">KONFIGURIERE DEIN TRAINING</div><h2>Workout-Setup<span class="heading-dot">.</span></h2></div><span class="plan-tag">HIIT LEVEL 3</span></div>
+      <div class="stat-grid"><div class="stat-card"><div class="stat-icon icon-work">↗</div><span>BELASTUNG</span><strong><span id="statWork">40</span><small> SEK</small></strong></div><div class="stat-card"><div class="stat-icon icon-rest">⌁</div><span>PAUSE</span><strong><span id="statRest">20</span><small> SEK</small></strong></div><div class="stat-card"><div class="stat-icon icon-round">◎</div><span>RUNDEN</span><strong id="statRounds">03</strong></div></div>
+      <div class="section-title"><span>01 <span class="slash">/</span> INTERVALLE</span><span class="section-title-hint">IN SEKUNDEN</span></div>
+      <div class="settings-grid"><label class="setting"><span>Belastung</span><div class="number-box"><input type="number" id="workInput" min="5" max="600" step="5" inputmode="numeric" value="40" aria-label="Belastung in Sekunden"><span>SEC</span></div></label><label class="setting"><span>Übungspause</span><div class="number-box"><input type="number" id="restInput" min="0" max="600" step="5" inputmode="numeric" value="20" aria-label="Übungspause in Sekunden"><span>SEC</span></div></label><label class="setting"><span>Rundenpause</span><div class="number-box"><input type="number" id="roundRestInput" min="0" max="600" step="5" inputmode="numeric" value="60" aria-label="Rundenpause in Sekunden"><span>SEC</span></div></label><label class="setting"><span>Aufwärmen</span><div class="number-box"><input type="number" id="warmupInput" min="0" max="600" step="5" inputmode="numeric" value="60" aria-label="Aufwärmen in Sekunden"><span>SEC</span></div></label></div>
+      <div class="round-setting"><div><strong>Runden</strong><span>Wie oft willst du alles geben?</span></div><div class="stepper"><button type="button" id="minusRound" aria-label="Eine Runde weniger">−</button><span id="roundCount">3</span><button type="button" id="plusRound" aria-label="Eine Runde mehr">+</button></div></div>
+      <div class="section-title exercise-section"><span>02 <span class="slash">/</span> ÜBUNGEN</span><span class="section-title-hint" id="exerciseCount">5 ÜBUNGEN</span></div>
+      <div class="exercise-list" id="exerciseList"></div>
+      <button id="addExerciseBtn" type="button" class="add-button"><span>＋</span> ÜBUNG HINZUFÜGEN</button>
+      <div class="total-card"><div><span>GESAMTDAUER</span><strong id="totalTime">17:00 <small>MIN</small></strong></div><div class="total-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div></div>
+      <button id="restoreBtn" type="button" class="restore-button">STANDARD-WORKOUT WIEDERHERSTELLEN ↗</button>
+      </section>
+    </div>
+  </main>
+  <footer class="app-footer"><span>MADE TO MOVE <span class="footer-star">✳</span> BUILT TO LAST</span><span>FÜR DEN NÄCHSTEN REP. UND DEN DANACH.</span></footer>
+ </div>
+</body>
+</html>
