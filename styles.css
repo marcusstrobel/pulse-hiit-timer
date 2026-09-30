@@ -95,16 +95,10 @@ body.settings-open{overflow:hidden}
  .transfer-button{min-height:55px}
 }
 
-/* settings-transfer-v1 */
+/* settings-transfer-card-v2 */
 .transfer-card{margin-top:16px;padding:15px;border:1px solid #365064;background:#152838;border-radius:12px}
 .transfer-copy{display:grid;gap:4px}
 .transfer-kicker{font-size:8px;font-weight:900;letter-spacing:1.7px;color:var(--accent)}
-.transfer-copy strong{font-size:14px;letter-spacing:-.2px}
-.transfer-copy p{margin:0;color:#8fa2af;font-size:11px;line-height:1.45}
-.transfer-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.transfer-button{min-height:42px;border:1px solid #49606f;background:#1d3343;color:#e7f1f2;border-radius:9px;font-size:9px;font-weight:900;letter-spacing:1px;padding:8px 10px}
-.transfer-button span{color:var(--accent);font-size:15px;vertical-align:-1px;margin-right:4px}
-.transfer-button:hover:not(:disabled){border-color:#6b8b5a;color:var(--accent)}
-.transfer-status{min-height:16px;margin-top:8px;font-size:10px;line-height:1.35;color:#a9f45e}
-.transfer-status.is-error{color:#ff9e91}
-@media(max-width:380px){.transfer-actions{grid-template-columns:1fr}.transfer-button{min-height:44px}}
+.transfer-copy>strong{font-size:14px;letter-spacing:-.2px}
+.transfer-copy>p{margin:0;color:#8fa2af;font-size:11px;line-height:1.45}
+.transfer-card .transfer-actions{margin-top:12px}
