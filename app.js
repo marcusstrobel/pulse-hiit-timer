@@ -13,6 +13,10 @@
   let audioCtx = null;
   let wakeLock = null;
   let lastRenderedSecond = -1;
+  let swRegistration = null;
+  let swHadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
+  let swReloading = false;
+  let swReloadPending = false;
 
   function loadSettings() {
     try {
@@ -140,6 +144,29 @@
     try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (_) {}
   }
   function releaseWakeLock() { if (wakeLock) { const lock = wakeLock; wakeLock = null; lock.release().catch(() => {}); } }
+  async function checkForAppUpdate() {
+    if (!swRegistration || document.visibilityState !== 'visible') return;
+    try { await swRegistration.update(); } catch (_) {}
+  }
+  function reloadForServiceWorkerUpdate() {
+    if (!swHadController) {
+      swHadController = true;
+      return;
+    }
+    if (swReloading) return;
+    if (state.status === 'running' || state.status === 'paused') {
+      swReloadPending = true;
+      return;
+    }
+    swReloading = true;
+    location.reload();
+  }
+  async function registerServiceWorker() {
+    try {
+      swRegistration = await navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' });
+      await checkForAppUpdate();
+    } catch (_) {}
+  }
   function setSettingsOpen(open) {
     const panel = $('settingsPanel');
     const backdrop = $('settingsBackdrop');
@@ -316,6 +343,10 @@
     state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1 };
     lastRenderedSecond = -1; setControlsDisabled(); renderTimer();
     if (announce) say('Workout zurückgesetzt.');
+    if (swReloadPending && !swReloading) {
+      swReloading = true;
+      location.reload();
+    }
   }
   for (const [id, key] of Object.entries(numberFields)) {
     $(id).addEventListener('change', event => {
@@ -355,12 +386,19 @@
     else document.exitFullscreen?.().catch(() => {});
   });
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && state.status === 'running') { tick(); acquireWakeLock(); }
+    if (document.visibilityState === 'visible') {
+      if (state.status === 'running') { tick(); acquireWakeLock(); }
+      checkForAppUpdate();
+    }
   });
-  window.addEventListener('pageshow', () => { if (state.status === 'running') tick(); });
+  window.addEventListener('pageshow', () => {
+    if (state.status === 'running') tick();
+    checkForAppUpdate();
+  });
   window.addEventListener('beforeunload', releaseWakeLock);
   setInputValues(); renderExercises(); renderTimer();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+    navigator.serviceWorker.addEventListener('controllerchange', reloadForServiceWorkerUpdate);
+    window.addEventListener('load', registerServiceWorker);
   }
 })();
