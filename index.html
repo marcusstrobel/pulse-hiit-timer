@@ -49,6 +49,15 @@
       <div class="section-title exercise-section"><span>02 <span class="slash">/</span> ÜBUNGEN</span><span class="section-title-hint" id="exerciseCount">5 ÜBUNGEN</span></div>
       <div class="exercise-list" id="exerciseList"></div>
       <button id="addExerciseBtn" type="button" class="add-button"><span>＋</span> ÜBUNG HINZUFÜGEN</button>
+      <div class="transfer-card" aria-labelledby="transferTitle">
+       <div class="transfer-copy"><span class="transfer-kicker">BACKUP & TRANSFER</span><strong id="transferTitle">Einstellungen ex-/importieren</strong><p>Intervalle, Runden, Sound und komplette Übungsliste als JSON sichern oder wiederherstellen.</p></div>
+       <div class="transfer-actions">
+        <button id="exportSettingsBtn" type="button" class="transfer-button"><span aria-hidden="true">⇧</span> EXPORTIEREN</button>
+        <button id="importSettingsBtn" type="button" class="transfer-button"><span aria-hidden="true">⇩</span> IMPORTIEREN</button>
+        <input id="importSettingsFile" class="sr-only" type="file" accept=".json,application/json" aria-label="PULSE Einstellungen aus JSON-Datei importieren">
+       </div>
+       <div id="transferStatus" class="transfer-status" role="status" aria-live="polite"></div>
+      </div>
       <div class="total-card"><div><span>GESAMTDAUER</span><strong id="totalTime">17:00 <small>MIN</small></strong></div><div class="total-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div></div>
       <div class="transfer-section">
        <div class="section-title transfer-title"><span>03 <span class="slash">/</span> SICHERN &amp; ÜBERTRAGEN</span><span class="section-title-hint">JSON</span></div>
