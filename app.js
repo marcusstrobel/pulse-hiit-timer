@@ -8,7 +8,7 @@
   const numberFields = { workInput: 'work', restInput: 'rest', roundRestInput: 'roundRest', warmupInput: 'warmup' };
   let settings = loadSettings();
   let plan = createPlan(settings);
-  let state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1 };
+  let state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
   let intervalId = null;
   let audioCtx = null;
   let wakeLock = null;
@@ -139,6 +139,12 @@
     else tone(570, .17);
     if (navigator.vibrate) navigator.vibrate(kind === 'work' ? [90, 70, 90] : 85);
   }
+  function halfwayRoundRestSound() {
+    tone(920, .11);
+    tone(920, .11, .18);
+    if (navigator.vibrate) navigator.vibrate([70, 70, 70]);
+    say('Hälfte der Rundenpause vorbei.');
+  }
   async function acquireWakeLock() {
     if (!('wakeLock' in navigator) || document.visibilityState !== 'visible' || state.status !== 'running' || wakeLock) return;
     try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (_) {}
@@ -236,7 +242,7 @@
   }
   function syncPlan() {
     plan = createPlan(settings);
-    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1 };
+    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
     lastRenderedSecond = -1; saveSettings(); setInputValues(); renderTimer();
   }
   function setControlsDisabled() {
@@ -257,13 +263,15 @@
     $('phaseText').textContent = state.status === 'paused' ? 'PAUSIERT' : phases[kind];
     $('timer-heading').textContent = complete ? 'Stark gemacht!' : segment.title;
     const next = complete ? null : upcomingWork(plan, state.index);
-    $('nextText').textContent = complete ? 'Dein Workout ist abgeschlossen.' : next ? `Danach: ${next.title}` : 'Letztes Intervall – zieh durch!';
+    const finalRoundRest = !complete && segment.kind === 'roundRest' && segment.round === settings.rounds;
+    $('nextText').textContent = complete ? 'Dein Workout ist abgeschlossen.' : finalRoundRest ? 'Danach: Geschafft!' : next ? `Danach: ${next.title}` : 'Letztes Intervall – zieh durch!';
     const exerciseTotal = settings.exercises.length;
     let exerciseNumber = exerciseTotal;
     if (!complete) {
       if (segment.kind === 'work') exerciseNumber = segment.exerciseIndex + 1;
       else if (segment.kind === 'rest') exerciseNumber = Math.min(exerciseTotal, segment.exerciseIndex + 2);
-      else if (segment.kind === 'roundRest' || segment.kind === 'warmup') exerciseNumber = 1;
+      else if (segment.kind === 'roundRest') exerciseNumber = segment.round === settings.rounds ? exerciseTotal : 1;
+      else if (segment.kind === 'warmup') exerciseNumber = 1;
     }
     $('exerciseBadge').textContent = `ÜBUNG ${exerciseNumber} VON ${exerciseTotal}`;
     $('roundBadge').textContent = complete ? 'ALLE RUNDEN GESCHAFFT' : `RUNDE ${Math.max(1, segment.round)} VON ${settings.rounds}`;
@@ -303,6 +311,7 @@
       state.deadline += plan[state.index].seconds * 1000;
       state.remainingMs = Math.max(0, state.deadline - timeNow);
       state.lastCue = -1;
+      state.halfCue = false;
     }
     if (changed) {
       const phase = plan[state.index];
@@ -316,6 +325,11 @@
     state.remainingMs = Math.max(0, state.deadline - now);
     if (state.remainingMs <= 0) advance(now);
     if (state.status !== 'running') return;
+    const phase = plan[state.index];
+    if (phase.kind === 'roundRest' && !state.halfCue && state.remainingMs > 0 && state.remainingMs <= phase.seconds * 500) {
+      state.halfCue = true;
+      halfwayRoundRestSound();
+    }
     const second = Math.ceil(state.remainingMs / 1000);
     if (second <= 3 && second >= 1 && state.lastCue !== second) {
       state.lastCue = second; tone(700 + (3 - second) * 60, .09);
@@ -343,6 +357,7 @@
     state.remainingMs = plan[target].seconds * 1000;
     state.deadline = Date.now() + state.remainingMs;
     state.lastCue = -1;
+    state.halfCue = false;
     if (state.status === 'running') phaseSound(plan[target].kind);
     say(`${plan[target].title}.`);
     renderTimer();
@@ -353,7 +368,7 @@
   }
   function reset(announce = true) {
     stopTick(); releaseWakeLock();
-    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1 };
+    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
     lastRenderedSecond = -1; setControlsDisabled(); renderTimer();
     if (announce) say('Workout zurückgesetzt.');
     if (swReloadPending && !swReloading) {
