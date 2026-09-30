@@ -38,7 +38,7 @@
           plan.push({ kind: 'rest', title: 'Durchatmen', seconds: s.rest, round: r, exerciseIndex: idx });
         }
       });
-      if (r < s.rounds && s.roundRest) {
+      if (s.roundRest) {
         plan.push({ kind: 'roundRest', title: 'Rundenpause', seconds: s.roundRest, round: r, exerciseIndex: s.exercises.length - 1 });
       }
     }
