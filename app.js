@@ -144,9 +144,15 @@
     try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch (_) {}
   }
   function releaseWakeLock() { if (wakeLock) { const lock = wakeLock; wakeLock = null; lock.release().catch(() => {}); } }
+  function applyPendingAppUpdate() {
+    if (!swReloadPending || swReloading || state.status === 'running' || state.status === 'paused') return;
+    swReloading = true;
+    location.reload();
+  }
   async function checkForAppUpdate() {
     if (!swRegistration || document.visibilityState !== 'visible') return;
     try { await swRegistration.update(); } catch (_) {}
+    applyPendingAppUpdate();
   }
   function reloadForServiceWorkerUpdate() {
     if (!swHadController) {
@@ -389,11 +395,13 @@
     if (document.visibilityState === 'visible') {
       if (state.status === 'running') { tick(); acquireWakeLock(); }
       checkForAppUpdate();
+      applyPendingAppUpdate();
     }
   });
   window.addEventListener('pageshow', () => {
     if (state.status === 'running') tick();
     checkForAppUpdate();
+    applyPendingAppUpdate();
   });
   window.addEventListener('beforeunload', releaseWakeLock);
   setInputValues(); renderExercises(); renderTimer();
