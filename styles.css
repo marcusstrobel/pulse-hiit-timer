@@ -77,3 +77,20 @@ body.settings-open{overflow:hidden}
  .controls{margin:9px 0}
  .progress-info{margin-top:2px}
 }
+
+.transfer-section{margin-top:18px;padding-top:18px;border-top:1px solid #314351}
+.transfer-title{margin:0 0 8px}
+.transfer-hint{margin:0 0 12px;color:#8fa1ad;font-size:11px;line-height:1.45}
+.transfer-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.transfer-button{min-width:0;border:1px solid #3c5262;background:#172b3a;color:#eaf3f4;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;text-align:left}
+.transfer-button:hover:not(:disabled){border-color:#66864f;background:#1d342f}
+.transfer-button svg{width:21px;height:21px;flex:none;color:var(--accent)}
+.transfer-button span{display:flex;min-width:0;flex-direction:column;gap:3px}
+.transfer-button strong{font-size:10px;letter-spacing:1.05px}
+.transfer-button small{font-size:10px;line-height:1.3;color:#8fa2ae;font-weight:600}
+.transfer-status{min-height:17px;margin-top:9px;font-size:10px;line-height:1.4;color:#a9f45e}
+.transfer-status.is-error{color:#ffb0a7}
+@media(max-width:460px){
+ .transfer-actions{grid-template-columns:1fr}
+ .transfer-button{min-height:55px}
+}
