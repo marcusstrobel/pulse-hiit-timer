@@ -6,7 +6,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   const DEFAULTS = Object.freeze({
     work: 40, rest: 20, roundRest: 60, warmup: 60, rounds: 3,
-    exercises: ['Jump Squats', 'Plank Walk', 'Jump Lunges', 'Cross Body Mountain Climbers', 'Burpee mit Tuck Jump'],
+    exercises: ['Liegestütze', 'Stehende Kurzhantel-Bizepscurls', 'Kniebeugen mit Hanteln', 'Schulterdrücken mit Kurzhanteln', 'Sit-Ups'],
     sound: true
   });
   function intInRange(value, fallback, min, max) {
