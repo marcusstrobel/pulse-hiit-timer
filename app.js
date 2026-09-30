@@ -258,8 +258,15 @@
     $('timer-heading').textContent = complete ? 'Stark gemacht!' : segment.title;
     const next = complete ? null : upcomingWork(plan, state.index);
     $('nextText').textContent = complete ? 'Dein Workout ist abgeschlossen.' : next ? `Danach: ${next.title}` : 'Letztes Intervall – zieh durch!';
+    const exerciseTotal = settings.exercises.length;
+    let exerciseNumber = exerciseTotal;
+    if (!complete) {
+      if (segment.kind === 'work') exerciseNumber = segment.exerciseIndex + 1;
+      else if (segment.kind === 'rest') exerciseNumber = Math.min(exerciseTotal, segment.exerciseIndex + 2);
+      else if (segment.kind === 'roundRest' || segment.kind === 'warmup') exerciseNumber = 1;
+    }
+    $('exerciseBadge').textContent = `ÜBUNG ${exerciseNumber} VON ${exerciseTotal}`;
     $('roundBadge').textContent = complete ? 'ALLE RUNDEN GESCHAFFT' : `RUNDE ${Math.max(1, segment.round)} VON ${settings.rounds}`;
-    $('sessionNumber').textContent = `${String(complete ? settings.rounds : Math.max(1,segment.round)).padStart(2,'0')} / ${String(settings.rounds).padStart(2,'0')}`;
     const seconds = complete ? 0 : state.remainingMs / 1000;
     const displayed = formatTime(seconds);
     $('timeDisplay').textContent = displayed;
