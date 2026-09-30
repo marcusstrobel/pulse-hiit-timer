@@ -22,6 +22,90 @@
   }
   function saveSettings() { try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch (_) {} }
   function say(message) { $('screenreaderUpdates').textContent = message; }
+  function setTransferStatus(message, isError = false) {
+    const status = $('transferStatus');
+    status.textContent = message;
+    status.classList.toggle('is-error', isError);
+  }
+  function exportedSettings() {
+    return {
+      schema: 'pulse-hiit-workout',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: {
+        work: settings.work,
+        rest: settings.rest,
+        roundRest: settings.roundRest,
+        warmup: settings.warmup,
+        rounds: settings.rounds,
+        exercises: [...settings.exercises],
+        sound: settings.sound
+      }
+    };
+  }
+  async function exportSettings() {
+    const data = JSON.stringify(exportedSettings(), null, 2);
+    const date = new Date().toISOString().slice(0, 10);
+    const filename = `pulse-hiit-workout-${date}.json`;
+    const file = new File([data], filename, { type: 'application/json' });
+    try {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'PULSE HIIT Workout', text: 'Meine PULSE HIIT Workout-Konfiguration' });
+        setTransferStatus('Workout exportiert.');
+        say('Workout-Konfiguration exportiert.');
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setTransferStatus('Workout-Datei gespeichert.');
+      say('Workout-Konfiguration als Datei gespeichert.');
+    } catch (error) {
+      if (error?.name === 'AbortError') {
+        setTransferStatus('Export abgebrochen.');
+        return;
+      }
+      setTransferStatus('Export nicht möglich.', true);
+      say('Export der Workout-Konfiguration fehlgeschlagen.');
+    }
+  }
+  function validateImportedSettings(payload) {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('Ungültige Datei');
+    const candidate = payload.schema === 'pulse-hiit-workout'
+      ? payload.settings
+      : payload.settings && typeof payload.settings === 'object'
+        ? payload.settings
+        : payload;
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) throw new Error('Keine Einstellungen gefunden');
+    if (!Array.isArray(candidate.exercises) || candidate.exercises.length < 1) throw new Error('Übungsliste fehlt');
+    if (candidate.exercises.length > 15) throw new Error('Maximal 15 Übungen erlaubt');
+    if (!candidate.exercises.every(name => typeof name === 'string' && name.trim())) throw new Error('Ungültige Übungsliste');
+    return normalize(candidate);
+  }
+  async function importSettingsFile(file) {
+    if (!file) return;
+    if (state.status === 'running' || state.status === 'paused') {
+      setTransferStatus('Import während eines laufenden Workouts nicht möglich.', true);
+      return;
+    }
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      settings = validateImportedSettings(payload);
+      syncPlan();
+      renderExercises();
+      setTransferStatus(`Importiert: ${settings.exercises.length} Übungen · ${settings.rounds} Runden`);
+      say('Workout-Konfiguration erfolgreich importiert.');
+    } catch (_) {
+      setTransferStatus('Datei konnte nicht importiert werden. Bitte eine gültige PULSE-JSON-Datei wählen.', true);
+      say('Import der Workout-Konfiguration fehlgeschlagen.');
+    }
+  }
   function prepareAudio() {
     if (!settings.sound) return;
     try {
@@ -125,7 +209,7 @@
   function setControlsDisabled() {
     const locked = state.status === 'running' || state.status === 'paused';
     Object.keys(numberFields).forEach(id => $(id).disabled = locked);
-    ['minusRound', 'plusRound', 'addExerciseBtn', 'restoreBtn'].forEach(id => $(id).disabled = locked);
+    ['minusRound', 'plusRound', 'addExerciseBtn', 'restoreBtn', 'importSettingsBtn'].forEach(id => $(id).disabled = locked);
     document.querySelectorAll('.exercise-input,.row-button').forEach(el => { el.disabled = locked || el.dataset.boundaryDisabled === 'true'; });
   }
   function markPhase(phase) {
@@ -247,6 +331,13 @@
     syncPlan(); renderExercises(); $('exerciseList').lastElementChild.querySelector('input').focus();
   });
   $('restoreBtn').addEventListener('click', () => { settings = normalize(DEFAULTS); syncPlan(); renderExercises(); say('Standard-Workout wiederhergestellt.'); });
+  $('exportSettingsBtn').addEventListener('click', exportSettings);
+  $('importSettingsBtn').addEventListener('click', () => {
+    setTransferStatus('');
+    $('importSettingsFile').value = '';
+    $('importSettingsFile').click();
+  });
+  $('importSettingsFile').addEventListener('change', event => importSettingsFile(event.target.files?.[0]));
   $('settingsBtn').addEventListener('click', () => setSettingsOpen(true));
   $('closeSettingsBtn').addEventListener('click', () => setSettingsOpen(false));
   $('settingsBackdrop').addEventListener('click', () => setSettingsOpen(false));
