@@ -279,7 +279,8 @@
     $('timer-heading').textContent = complete ? 'Stark gemacht!' : segment.title;
     const next = complete ? null : upcomingWork(plan, state.index);
     const finalRoundRest = !complete && segment.kind === 'roundRest' && segment.round === settings.rounds;
-    $('nextText').textContent = complete ? 'Dein Workout ist abgeschlossen.' : finalRoundRest ? 'Danach: Geschafft!' : next ? `Danach: ${next.title}` : 'Letztes Intervall – zieh durch!';
+    $('nextLabel').hidden = complete || (!finalRoundRest && !next);
+    $('nextText').textContent = complete ? 'Dein Workout ist abgeschlossen.' : finalRoundRest ? 'Geschafft!' : next ? next.title : 'Letztes Intervall – zieh durch!';
     const exerciseTotal = settings.exercises.length;
     let exerciseNumber = exerciseTotal;
     if (!complete) {
