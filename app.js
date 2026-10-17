@@ -19,6 +19,20 @@
   let swReloading = false;
   let swReloadPending = false;
 
+  // Safari can ignore viewport zoom limits; also cancel its gesture events.
+  function preventGestureZoom(event) {
+    if (event.cancelable) event.preventDefault();
+  }
+  function preventMultiTouchZoom(event) {
+    if (event.touches.length > 1) preventGestureZoom(event);
+  }
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(type => {
+    document.addEventListener(type, preventGestureZoom, { passive: false });
+  });
+  ['touchstart', 'touchmove'].forEach(type => {
+    document.addEventListener(type, preventMultiTouchZoom, { passive: false });
+  });
+
   function syncViewportHeight() {
     const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     if (standalone && window.CSS?.supports('height', '100lvh')) {

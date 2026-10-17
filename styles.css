@@ -104,8 +104,8 @@ body.settings-open{overflow:hidden}
 .transfer-copy>p{margin:0;color:#8fa2af;font-size:11px;line-height:1.45}
 .transfer-card .transfer-actions{margin-top:12px}
 
-/* prevent-double-tap-zoom */
-html,body,.app-shell,button{touch-action:manipulation}
+/* Allow scrolling, but disable double-tap and pinch zoom, including dialogs. */
+html,body,.app-shell,button,dialog{touch-action:pan-x pan-y}
 
 /* Give the timer the space left between the fixed text and control areas. */
 .app-shell{height:100vh;height:var(--app-height,100dvh);min-height:0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
