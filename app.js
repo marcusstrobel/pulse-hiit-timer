@@ -55,9 +55,9 @@
       synth.speak(utterance);
     } catch (_) {}
   }
-  function say(message) {
+  function say(message, spoken = true) {
     $('screenreaderUpdates').textContent = message;
-    speak(message);
+    if (spoken) speak(message);
   }
   function renderVoiceOptions() {
     const available = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
@@ -415,7 +415,8 @@
     if (changed) {
       const phase = plan[state.index];
       phaseSound(phase.kind);
-      say(`${phase.kind === 'rest' ? 'Pause' : phase.title}. ${phase.seconds} Sekunden.`);
+      say(`${phase.kind === 'rest' ? 'Pause' : phase.title}. ${phase.seconds} Sekunden.`,
+        phase.kind !== 'work' || state.announcedWork !== state.index);
     }
   }
   function tick() {
@@ -450,7 +451,8 @@
     }
     prepareAudio(); state.status = 'running'; state.deadline = Date.now() + state.remainingMs;
     state.lastCue = -1; acquireWakeLock(); startTick();
-    say(`${plan[state.index].kind === 'rest' ? 'Pause' : plan[state.index].title}.`); setControlsDisabled(); renderTimer();
+    say(`${plan[state.index].kind === 'rest' ? 'Pause' : plan[state.index].title}.`,
+      plan[state.index].kind !== 'work' || state.announcedWork !== state.index); setControlsDisabled(); renderTimer();
   }
   function skip(delta) {
     if (state.status === 'complete') return;

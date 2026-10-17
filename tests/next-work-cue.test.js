@@ -14,3 +14,27 @@ const noRest = createPlan({ warmup: 0, work: 20, rest: 0, roundRest: 0, rounds: 
 assert.deepEqual(nextWorkCue(noRest, 0, 8000), { index: 1, title: 'B' });
 assert.equal(nextWorkCue(noRest, 0, 0), null);
 console.log('PASS: Eight-second cue, short/no pauses, rounds, no duplicate, workout end');
+
+// A preannounced exercise keeps its start beep and screen-reader update,
+// but does not repeat the spoken name. Unannounced starts still speak.
+const fs = require('node:fs');
+const vm = require('node:vm');
+const source = fs.readFileSync(require.resolve('../app.js'), 'utf8');
+const advanceSource = source.slice(source.indexOf('  function advance(timeNow)'), source.indexOf('  function tick()'));
+for (const announcedWork of [1, -1]) {
+  const spoken = [];
+  const sounds = [];
+  const context = {
+    plan: [{ kind: 'rest', seconds: 10 }, { kind: 'work', title: 'Kniebeugen', seconds: 40 }],
+    state: { status: 'running', index: 0, remainingMs: 0, deadline: 10000, announcedWork },
+    phaseSound: kind => sounds.push(kind),
+    say: (message, audible) => spoken.push({ message, audible })
+  };
+  vm.createContext(context);
+  vm.runInContext(advanceSource, context);
+  context.advance(10000);
+  assert.equal(spoken[0].audible, announcedWork !== 1);
+  assert.equal(spoken[0].message, 'Kniebeugen. 40 Sekunden.');
+  assert.deepEqual(sounds, ['work']);
+}
+console.log('PASS: No duplicate speech at preannounced exercise start; beep preserved');

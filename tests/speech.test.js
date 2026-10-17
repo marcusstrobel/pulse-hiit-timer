@@ -6,7 +6,7 @@ assert.equal(normalize({}).speech, true);
 assert.equal(normalize({ speech: false }).speech, false);
 assert.equal(normalize({ speech: 'false' }).speech, true);
 const source = fs.readFileSync(require.resolve('../app.js'), 'utf8');
-const speechFunction = source.slice(source.indexOf('  function speak(message)'), source.indexOf('  function say(message)'));
+const speechFunction = source.slice(source.indexOf('  function speak(message)'), source.indexOf('  function say(message,'));
 const events = [];
 const german = { lang: 'de-DE', localService: true };
 const context = { settings: { sound: true, speech: true }, window: {
