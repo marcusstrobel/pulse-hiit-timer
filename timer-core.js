@@ -54,5 +54,17 @@
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   }
   function upcomingWork(plan, fromIndex) { return plan.slice(fromIndex + 1).find(x => x.kind === 'work') || null; }
-  return { DEFAULTS, normalize, createPlan, totalSeconds, formatTime, upcomingWork };
+  function nextWorkCue(plan, fromIndex, remainingMs, announcedIndex = -1) {
+    let untilStart = remainingMs;
+    for (let index = fromIndex + 1; index < plan.length; index++) {
+      const phase = plan[index];
+      if (phase.kind === 'work') {
+        return index !== announcedIndex && untilStart > 0 && untilStart <= 8000
+          ? { index, title: phase.title } : null;
+      }
+      untilStart += phase.seconds * 1000;
+    }
+    return null;
+  }
+  return { DEFAULTS, normalize, createPlan, totalSeconds, formatTime, upcomingWork, nextWorkCue };
 });

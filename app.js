@@ -1,6 +1,6 @@
 'use strict';
 (() => {
-  const { DEFAULTS, normalize, createPlan, totalSeconds, formatTime, upcomingWork } = window.HIITCore;
+  const { DEFAULTS, normalize, createPlan, totalSeconds, formatTime, upcomingWork, nextWorkCue } = window.HIITCore;
   const $ = id => document.getElementById(id);
   const storageKey = 'pulse-hiit-settings-v1';
   const circumference = 2 * Math.PI * 139;
@@ -9,7 +9,7 @@
   const legacyDefaultExercises = ['Jump Squats', 'Plank Walk', 'Jump Lunges', 'Cross Body Mountain Climbers', 'Burpee mit Tuck Jump'];
   let settings = loadSettings();
   let plan = createPlan(settings);
-  let state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
+  let state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false, announcedWork: -1 };
   let intervalId = null;
   let audioCtx = null;
   let wakeLock = null;
@@ -310,7 +310,7 @@
   }
   function syncPlan() {
     plan = createPlan(settings);
-    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
+    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false, announcedWork: -1 };
     lastRenderedSecond = -1; saveSettings(); setInputValues(); renderTimer();
   }
   function setControlsDisabled() {
@@ -429,6 +429,11 @@
       state.halfCue = true;
       halfwayRoundRestSound();
     }
+    const nextCue = nextWorkCue(plan, state.index, state.remainingMs, state.announcedWork);
+    if (nextCue) {
+      state.announcedWork = nextCue.index;
+      say(`Nächste Übung: ${nextCue.title}.`);
+    }
     const second = Math.ceil(state.remainingMs / 1000);
     if (second <= 3 && second >= 1 && state.lastCue !== second) {
       state.lastCue = second; tone(700 + (3 - second) * 60, .09);
@@ -453,6 +458,7 @@
     if (target < 0) return;
     if (target >= plan.length) { finish(); return; }
     state.index = target;
+    state.announcedWork = -1;
     state.remainingMs = plan[target].seconds * 1000;
     state.deadline = Date.now() + state.remainingMs;
     state.lastCue = -1;
@@ -468,7 +474,7 @@
   function reset(announce = true) {
     window.speechSynthesis?.cancel();
     stopTick(); releaseWakeLock();
-    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
+    state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false, announcedWork: -1 };
     lastRenderedSecond = -1; setControlsDisabled(); renderTimer();
     if (announce) say('Workout zurückgesetzt.');
     if (swReloadPending && !swReloading) {
