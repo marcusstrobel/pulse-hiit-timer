@@ -199,3 +199,8 @@ body.install-help-open{overflow:hidden}
 .install-tabs button{flex:1;min-height:44px;border:0;border-radius:8px;background:transparent;color:#aab8c0;font-weight:800}
 .install-tabs button[aria-selected="true"]{background:var(--accent);color:#101b22}
 .install-help [role="tabpanel"]{border-top:0;margin-top:16px;padding-top:0}
+
+/* Keep the photo visible alongside the name on narrow phones. */
+.brand-avatar{display:block;width:40px;height:40px;flex-shrink:0;border-radius:9px;object-fit:cover}
+@media(max-width:760px){.brand{gap:7px}.brand-avatar{width:32px;height:32px;border-radius:7px}}
+@media(max-width:380px){.brand{font-size:15px;gap:5px}.brand-avatar{width:28px;height:28px}}

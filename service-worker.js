@@ -1,8 +1,8 @@
-const CACHE_NAME = 'pulse-hiit-v32';
+const CACHE_NAME = 'pulse-hiit-v34';
 const ASSETS = [
-  './', './index.html', './styles.css?v=32', './timer-core.js?v=32', './app.js?v=32',
-  './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png',
-  './icons/icon-512.png', './icons/icon-180.png'
+  './', './index.html', './styles.css?v=34', './timer-core.js?v=34', './app.js?v=34',
+  './manifest.webmanifest', './icons/mac-hiit-192.png',
+  './icons/mac-hiit-512.png', './icons/mac-hiit-180.png'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
