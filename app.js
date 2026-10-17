@@ -19,6 +19,21 @@
   let swReloading = false;
   let swReloadPending = false;
 
+  function syncViewportHeight() {
+    const viewport = window.visualViewport;
+    // Do not reflow the workout during pinch zoom or keyboard editing.
+    if (viewport && Math.abs(viewport.scale - 1) > .01) return;
+    if (document.activeElement?.matches('input, textarea, [contenteditable="true"]')) return;
+    const height = viewport?.height || window.innerHeight;
+    if (height > 0) document.documentElement.style.setProperty('--app-height', `${height}px`);
+  }
+  function settleViewportHeight() {
+    syncViewportHeight();
+    requestAnimationFrame(syncViewportHeight);
+    // iOS can finalize its viewport after the initial paint or app restore.
+    setTimeout(syncViewportHeight, 100);
+    setTimeout(syncViewportHeight, 500);
+  }
   function isLegacyDefaultSettings(value) {
     return value && typeof value === 'object' &&
       Number(value.work) === 40 && Number(value.rest) === 20 && Number(value.roundRest) === 60 &&
@@ -326,18 +341,24 @@
   const fittedTitles = new WeakMap();
   function fitExerciseTitles(force = false) {
     for (const element of [$('timer-heading'), $('nextText')]) {
-      if (!force && fittedTitles.get(element) === element.textContent) continue;
+      const text = element.textContent;
+      let content = element.querySelector('.exercise-title-text');
+      if (!content) {
+        content = document.createElement('span');
+        content.className = 'exercise-title-text';
+        content.textContent = text;
+        element.replaceChildren(content);
+      }
+      if (!force && fittedTitles.get(element) === text) continue;
       element.style.removeProperty('font-size');
       const maximum = parseFloat(getComputedStyle(element).fontSize);
       if (!element.clientWidth) continue;
-      const range = document.createRange();
-      range.selectNodeContents(element);
       const fits = size => {
         element.style.fontSize = `${size}px`;
         const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
         return element.scrollWidth <= element.clientWidth &&
           element.scrollHeight <= element.clientHeight &&
-          range.getBoundingClientRect().height <= 2 * lineHeight + 1;
+          content.offsetHeight <= Math.ceil(2 * lineHeight);
       };
       if (!fits(maximum)) {
         let low = 1;
@@ -534,18 +555,26 @@
   });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
+      settleViewportHeight();
       if (state.status === 'running') { tick(); acquireWakeLock(); }
       checkForAppUpdate();
       applyPendingAppUpdate();
     }
   });
   window.addEventListener('pageshow', () => {
+    settleViewportHeight();
     if (state.status === 'running') tick();
     checkForAppUpdate();
     applyPendingAppUpdate();
   });
   window.addEventListener('beforeunload', releaseWakeLock);
   window.addEventListener('pagehide', () => window.speechSynthesis?.cancel());
+  settleViewportHeight();
+  window.addEventListener('load', settleViewportHeight);
+  window.addEventListener('resize', syncViewportHeight);
+  window.addEventListener('orientationchange', settleViewportHeight);
+  window.visualViewport?.addEventListener('resize', syncViewportHeight);
+  document.addEventListener('focusout', settleViewportHeight);
   setInputValues(); renderExercises(); renderTimer();
   const titleResizeObserver = new ResizeObserver(() => fitExerciseTitles(true));
   titleResizeObserver.observe($('timer-heading'));
