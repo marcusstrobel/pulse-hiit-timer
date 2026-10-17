@@ -20,6 +20,13 @@
   let swReloadPending = false;
 
   function syncViewportHeight() {
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (standalone && window.CSS?.supports('height', '100lvh')) {
+      // Installed iOS apps have no browser toolbar. Their visualViewport can
+      // report a stale, smaller height on launch; let CSS track the full screen.
+      document.documentElement.style.setProperty('--app-height', '100lvh');
+      return;
+    }
     const viewport = window.visualViewport;
     // Do not reflow the workout during pinch zoom or keyboard editing.
     if (viewport && Math.abs(viewport.scale - 1) > .01) return;
@@ -526,6 +533,40 @@
     $('importSettingsFile').click();
   });
   $('importSettingsFile').addEventListener('change', event => importSettingsFile(event.target.files?.[0]));
+  const installTabs = [$('installIphoneTab'), $('installAndroidTab')];
+  function selectInstallTab(selected) {
+    installTabs.forEach(tab => {
+      const active = tab === selected;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+      $(tab.getAttribute('aria-controls')).hidden = !active;
+    });
+  }
+  installTabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectInstallTab(tab));
+    tab.addEventListener('keydown', event => {
+      let target;
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') target = installTabs[1 - index];
+      else if (event.key === 'Home') target = installTabs[0];
+      else if (event.key === 'End') target = installTabs[1];
+      if (target) { event.preventDefault(); selectInstallTab(target); target.focus(); }
+    });
+  });
+  $('installHelpBtn').addEventListener('click', () => {
+    selectInstallTab($('installIphoneTab'));
+    $('installHelp').showModal();
+    document.body.classList.add('install-help-open');
+  });
+  $('closeInstallHelp').addEventListener('click', () => $('installHelp').close());
+  $('installHelp').addEventListener('close', () => {
+    document.body.classList.remove('install-help-open');
+    $('installHelpBtn').focus();
+  });
+  $('installHelp').addEventListener('click', event => {
+    const rect = $('installHelp').getBoundingClientRect();
+    if (event.target === $('installHelp') &&
+        (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) $('installHelp').close();
+  });
   $('settingsBtn').addEventListener('click', () => setSettingsOpen(true));
   $('closeSettingsBtn').addEventListener('click', () => setSettingsOpen(false));
   $('settingsBackdrop').addEventListener('click', () => setSettingsOpen(false));

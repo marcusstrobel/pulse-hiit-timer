@@ -11,17 +11,17 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/icon-180.png">
-  <link rel="stylesheet" href="./styles.css?v=27">
-  <script defer src="./timer-core.js?v=27"></script>
-  <script defer src="./app.js?v=27"></script>
+  <link rel="stylesheet" href="./styles.css?v=32">
+  <script defer src="./timer-core.js?v=32"></script>
+  <script defer src="./app.js?v=32"></script>
   <title>PULSE · HIIT Timer</title>
 </head>
 <body>
  <div class="background-glow" aria-hidden="true"></div>
  <div class="app-shell">
   <header class="topbar">
-   <a class="brand" href="./" aria-label="PULSE HIIT Startseite"><span class="brand-mark"><span></span><span></span><span></span></span><span>PULSE<span class="brand-dot">.</span></span></a>
-   <div class="top-actions"><span class="header-tag"><span class="online-dot"></span> DEIN WORKOUT. DEIN TEMPO.</span><button id="settingsBtn" type="button" class="icon-button settings-button" aria-label="Workout konfigurieren" aria-controls="settingsPanel" aria-expanded="false" title="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H9.55v-.09a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4.05 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H2.25V9.55h.09A1.7 1.7 0 0 0 3.9 8.45a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.86-2.86.06.06A1.7 1.7 0 0 0 8.3 4.05a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2.25h4.05v.09a1.7 1.7 0 0 0 1.1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4H21v4.05h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg></button><button id="soundBtn" type="button" class="icon-button" aria-label="Ton ausschalten" aria-pressed="true" title="Ton an / aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 5-5 4H3v6h3l5 4V5Z"/><path class="sound-waves" d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/><path class="sound-off" d="m16 9 5 6m0-6-5 6"/></svg></button></div>
+   <a class="brand" href="./" aria-label="mac's HIIT Timer Startseite"><span class="brand-mark"><span></span><span></span><span></span></span><span>mac's HIIT Timer</span></a>
+   <div class="top-actions"><span class="header-tag"><span class="online-dot"></span> DEIN WORKOUT. DEIN TEMPO.</span><button id="installHelpBtn" type="button" class="icon-button" aria-label="Installationsanleitung öffnen" aria-controls="installHelp" aria-haspopup="dialog" title="App installieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg></button><button id="settingsBtn" type="button" class="icon-button settings-button" aria-label="Workout konfigurieren" aria-controls="settingsPanel" aria-expanded="false" title="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H9.55v-.09a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4.05 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H2.25V9.55h.09A1.7 1.7 0 0 0 3.9 8.45a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.86-2.86.06.06A1.7 1.7 0 0 0 8.3 4.05a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2.25h4.05v.09a1.7 1.7 0 0 0 1.1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4H21v4.05h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg></button><button id="soundBtn" type="button" class="icon-button" aria-label="Ton ausschalten" aria-pressed="true" title="Ton an / aus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 5-5 4H3v6h3l5 4V5Z"/><path class="sound-waves" d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/><path class="sound-off" d="m16 9 5 6m0-6-5 6"/></svg></button></div>
   </header>
   <main>
     <div class="dashboard">
@@ -65,5 +65,25 @@
   </main>
   <footer class="app-footer"><span>MADE TO MOVE <span class="footer-star">✳</span> BUILT TO LAST</span><span>FÜR DEN NÄCHSTEN REP. UND DEN DANACH.</span></footer>
  </div>
+ <dialog id="installHelp" class="install-help" aria-labelledby="installHelpTitle">
+  <div class="install-help-heading"><h2 id="installHelpTitle">App installieren</h2><button type="button" id="closeInstallHelp" class="drawer-close" aria-label="Installationsanleitung schließen" autofocus>×</button></div>
+  <p>Starte mac's HIIT Timer direkt über ein Symbol auf deinem Home-Bildschirm.</p>
+  <div class="install-tabs" role="tablist" aria-label="Gerät auswählen">
+   <button type="button" id="installIphoneTab" role="tab" aria-selected="true" aria-controls="installIphonePanel">iPhone</button>
+   <button type="button" id="installAndroidTab" role="tab" aria-selected="false" aria-controls="installAndroidPanel" tabindex="-1">Android</button>
+  </div>
+  <section id="installIphonePanel" role="tabpanel" aria-labelledby="installIphoneTab" tabindex="0"><h3 id="installIphoneTitle">iPhone · Safari</h3><ol>
+   <li>Öffne diese Website auf deinem iPhone in <strong>Safari</strong>.</li>
+   <li>Öffne <strong>Teilen</strong> (Quadrat mit Pfeil nach oben), gegebenenfalls über das Mehr-Menü.</li>
+   <li>Wähle <strong>Zum Home-Bildschirm</strong> bzw. <strong>Zu Home-Bildschirm hinzufügen</strong>.</li>
+   <li>Falls angezeigt, aktiviere <strong>Als Web-App öffnen</strong> und tippe auf <strong>Hinzufügen</strong>.</li>
+  </ol><p class="install-note">Fehlt der Menüpunkt? Scrolle im Teilen-Menü zu „Aktionen bearbeiten“ und füge ihn hinzu.</p><a href="https://support.apple.com/de-de/guide/iphone/iphea86e5236/ios" target="_blank" rel="noopener noreferrer">Anleitung von Apple ↗</a></section>
+  <section id="installAndroidPanel" role="tabpanel" aria-labelledby="installAndroidTab" tabindex="0" hidden><h3 id="installAndroidTitle">Android · Chrome</h3><ol>
+   <li>Öffne diese Website auf deinem Android-Gerät in <strong>Chrome</strong>.</li>
+   <li>Tippe auf das <strong>Dreipunkt-Menü ⋮</strong> neben der Adressleiste.</li>
+   <li>Wähle <strong>Installieren und Verknüpfung erstellen → Installieren</strong>. Je nach Version heißt der Menüpunkt auch „App installieren“ oder „Zum Startbildschirm hinzufügen“.</li>
+   <li>Bestätige die Installation und starte die App anschließend über ihr Symbol.</li>
+  </ol><a href="https://support.google.com/chrome/answer/9658361?hl=de&amp;co=GENIE.Platform%3DAndroid" target="_blank" rel="noopener noreferrer">Anleitung von Google ↗</a></section>
+ </dialog>
 </body>
 </html>

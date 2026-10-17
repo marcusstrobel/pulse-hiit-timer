@@ -1,6 +1,6 @@
-const CACHE_NAME = 'pulse-hiit-v27';
+const CACHE_NAME = 'pulse-hiit-v32';
 const ASSETS = [
-  './', './index.html', './styles.css?v=27', './timer-core.js?v=27', './app.js?v=27',
+  './', './index.html', './styles.css?v=32', './timer-core.js?v=32', './app.js?v=32',
   './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png',
   './icons/icon-512.png', './icons/icon-180.png'
 ];

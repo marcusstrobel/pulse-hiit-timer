@@ -170,3 +170,32 @@ body{min-height:var(--app-height,100dvh)}
 /* Measure wrapped line boxes, not WebKit text-range glyph bounds. */
 .exercise-title{white-space:normal;word-break:normal}
 .exercise-title-text{display:block;width:100%;white-space:normal;overflow-wrap:anywhere;line-height:inherit}
+
+@media(max-width:380px){.brand{font-size:18px;gap:6px;letter-spacing:-.7px}.brand-mark{flex-shrink:0}.top-actions{flex-shrink:0}}
+
+@supports(height:100lvh){
+ @media(display-mode:standalone){
+  :root{--app-height:100lvh}
+ }
+}
+
+body.install-help-open{overflow:hidden}
+.install-help{width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 32px);margin:auto;padding:22px;border:1px solid #40505e;border-radius:18px;background:#142433;color:#edf5f3;overflow-y:auto;overscroll-behavior:contain;box-shadow:0 24px 80px #0008}
+.install-help::backdrop{background:#02080ebd;backdrop-filter:blur(4px)}
+.install-help-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.install-help h2{font-size:24px;margin:0}
+.install-help h3{font-size:18px;color:var(--accent);margin:0 0 12px}
+.install-help p,.install-help li{font-size:14px;line-height:1.55}
+.install-help>p,.install-note{color:#aab8c0}
+.install-help section{border-top:1px solid #344959;padding-top:18px;margin-top:20px}
+.install-help ol{padding-left:22px;margin:0}
+.install-help li+li{margin-top:10px}
+.install-help a{display:inline-block;color:var(--accent);font-size:13px;margin-top:10px}
+.top-actions{flex-shrink:0}
+@media(max-width:760px){.topbar{gap:8px}.brand{min-width:0;font-size:clamp(15px,4.5vw,21px);letter-spacing:-.7px}.brand>span:last-child{white-space:nowrap}.top-actions{gap:5px}}
+@media(max-width:380px){.brand-mark{display:none}.brand{font-size:16px}.install-help{padding:16px}}
+
+.install-tabs{display:flex;gap:6px;padding:5px;border:1px solid #344959;border-radius:12px;background:#0b1824;margin-top:18px}
+.install-tabs button{flex:1;min-height:44px;border:0;border-radius:8px;background:transparent;color:#aab8c0;font-weight:800}
+.install-tabs button[aria-selected="true"]{background:var(--accent);color:#101b22}
+.install-help [role="tabpanel"]{border-top:0;margin-top:16px;padding-top:0}

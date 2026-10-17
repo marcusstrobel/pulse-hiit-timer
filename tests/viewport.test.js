@@ -6,7 +6,7 @@ const fn = source.slice(source.indexOf('  function syncViewportHeight()'), sourc
 const values = [];
 let editing = false;
 const context = {
-  window: { innerHeight: 800, visualViewport: { height: 700, scale: 1 } },
+  window: { matchMedia: () => ({ matches: false }), navigator: {}, CSS: { supports: () => true }, innerHeight: 800, visualViewport: { height: 700, scale: 1 } },
   document: { activeElement: { matches: () => editing }, documentElement: { style: { setProperty: (name, value) => values.push(value) } } }
 };
 vm.createContext(context);
@@ -28,3 +28,16 @@ delete context.window.visualViewport;
 context.syncViewportHeight();
 assert.equal(values.at(-1), '800px');
 console.log('PASS: Initial viewport, height changes, zoom/keyboard guards, fallback');
+
+context.window.matchMedia = () => ({ matches: true });
+context.window.visualViewport = { height: 640, scale: 1 };
+context.syncViewportHeight();
+assert.equal(values.at(-1), '100lvh');
+context.window.matchMedia = () => ({ matches: false });
+context.window.navigator.standalone = true;
+context.syncViewportHeight();
+assert.equal(values.at(-1), '100lvh');
+context.window.CSS.supports = () => false;
+context.syncViewportHeight();
+assert.equal(values.at(-1), '640px');
+console.log('PASS: Installed-app viewport ignores stale visual height, including iOS standalone and legacy fallback');
