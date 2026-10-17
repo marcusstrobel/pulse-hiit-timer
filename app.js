@@ -40,7 +40,50 @@
     } catch (_) { return normalize(DEFAULTS); }
   }
   function saveSettings() { try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch (_) {} }
-  function say(message) { $('screenreaderUpdates').textContent = message; }
+  function speak(message) {
+    if (!settings.sound || !settings.speech || !('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+    try {
+      const synth = window.speechSynthesis;
+      synth.cancel();
+      const utterance = new window.SpeechSynthesisUtterance(message);
+      utterance.lang = 'de-DE';
+      utterance.volume = 1;
+      utterance.rate = 1;
+      const voices = synth.getVoices();
+      const voice = voices.find(v => settings.speechVoice && v.voiceURI === settings.speechVoice && /^(?:de|en)(?:[-_]|$)/i.test(v.lang)) || voices.find(v => /^de[-_]/i.test(v.lang) && v.localService) || voices.find(v => /^de[-_]/i.test(v.lang));
+      if (voice) { utterance.voice = voice; utterance.lang = voice.lang; }
+      synth.speak(utterance);
+    } catch (_) {}
+  }
+  function say(message) {
+    $('screenreaderUpdates').textContent = message;
+    speak(message);
+  }
+  function renderVoiceOptions() {
+    const available = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+    const voices = available ? window.speechSynthesis.getVoices() : [];
+    const select = $('speechVoice');
+    select.replaceChildren(new Option('Automatisch (Deutsch)', ''));
+    const groups = [['Deutsch', voices.filter(v => /^de(?:[-_]|$)/i.test(v.lang))],
+      ['Englisch', voices.filter(v => /^en(?:[-_]|$)/i.test(v.lang))]];
+    for (const [label, items] of groups) {
+      if (!items.length) continue;
+      const group = document.createElement('optgroup');
+      group.label = label;
+      for (const voice of items.sort((a, b) => a.name.localeCompare(b.name))) {
+        group.append(new Option(`${voice.name} (${voice.lang})`, voice.voiceURI));
+      }
+      select.append(group);
+    }
+    const missing = settings.speechVoice && !voices.some(v => v.voiceURI === settings.speechVoice && /^(?:de|en)(?:[-_]|$)/i.test(v.lang));
+    select.value = missing ? '' : settings.speechVoice;
+    select.disabled = !available;
+    $('voicePreview').disabled = !available || !settings.sound || !settings.speech;
+    $('voiceHint').textContent = !available ? 'Keine Stimmwahl in diesem Browser verfügbar.' : missing
+      ? 'Die gespeicherte Stimme ist nicht verfügbar oder weder Deutsch noch Englisch. Es wird automatisch eine deutsche Stimme gewählt.'
+      : !voices.length ? 'Der Browser hat noch keine Stimmen gemeldet. Die Liste aktualisiert sich automatisch.'
+      : 'Deutsche und englische Stimmen auf diesem Gerät. Mit der Hörprobe findest du die passende Stimme.';
+  }
   function setTransferStatus(message, isError = false) {
     const status = $('transferStatus');
     status.textContent = message;
@@ -58,7 +101,9 @@
         warmup: settings.warmup,
         rounds: settings.rounds,
         exercises: [...settings.exercises],
-        sound: settings.sound
+        sound: settings.sound,
+        speech: settings.speech,
+        speechVoice: settings.speechVoice
       }
     };
   }
@@ -142,7 +187,9 @@
       const gain = audioCtx.createGain();
       oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(freq, start);
       gain.gain.setValueAtTime(.0001, start);
-      gain.gain.exponentialRampToValueAtTime(.16, start + .015);
+      // Full-scale signal with short fades to avoid clicks at either edge.
+      gain.gain.linearRampToValueAtTime(1, start + .015);
+      gain.gain.setValueAtTime(1, start + duration - .02);
       gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
       oscillator.connect(gain); gain.connect(audioCtx.destination);
       oscillator.start(start); oscillator.stop(start + duration + .02);
@@ -202,6 +249,7 @@
     document.body.classList.toggle('settings-open', open);
     $('settingsBtn').setAttribute('aria-expanded', String(open));
     if (open) {
+      renderVoiceOptions();
       requestAnimationFrame(() => $('closeSettingsBtn').focus());
     } else if (document.activeElement === $('closeSettingsBtn')) {
       $('settingsBtn').focus();
@@ -215,6 +263,11 @@
     $('statRounds').textContent = String(settings.rounds).padStart(2, '0');
     $('totalTime').innerHTML = `${formatTime(totalSeconds(plan))} <small>MIN</small>`;
     $('exerciseCount').textContent = `${settings.exercises.length} ${settings.exercises.length === 1 ? 'ÜBUNG' : 'ÜBUNGEN'}`;
+    renderVoiceOptions();
+    $('speechInput').checked = settings.speech;
+    const speechAvailable = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+    $('speechInput').disabled = !speechAvailable;
+    $('speechHint').textContent = speechAvailable ? 'Deutsche Ansagen für Übungen und Pausen. Der Ton-Schalter schaltet auch die Stimme stumm.' : 'Sprachausgabe ist in diesem Browser nicht verfügbar.';
     $('soundBtn').classList.toggle('is-muted', !settings.sound);
     $('soundBtn').setAttribute('aria-pressed', String(settings.sound));
     $('soundBtn').setAttribute('aria-label', settings.sound ? 'Ton ausschalten' : 'Ton einschalten');
@@ -270,6 +323,35 @@
     document.querySelector('.timer-panel').dataset.phase = phase;
     $('phaseText').textContent = phases[phase] || 'PAUSIERT';
   }
+  const fittedTitles = new WeakMap();
+  function fitExerciseTitles(force = false) {
+    for (const element of [$('timer-heading'), $('nextText')]) {
+      if (!force && fittedTitles.get(element) === element.textContent) continue;
+      element.style.removeProperty('font-size');
+      const maximum = parseFloat(getComputedStyle(element).fontSize);
+      if (!element.clientWidth) continue;
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const fits = size => {
+        element.style.fontSize = `${size}px`;
+        const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+        return element.scrollWidth <= element.clientWidth &&
+          element.scrollHeight <= element.clientHeight &&
+          range.getBoundingClientRect().height <= 2 * lineHeight + 1;
+      };
+      if (!fits(maximum)) {
+        let low = 1;
+        let high = maximum;
+        for (let i = 0; i < 12; i++) {
+          const middle = (low + high) / 2;
+          if (fits(middle)) low = middle;
+          else high = middle;
+        }
+        fits(low);
+      }
+      fittedTitles.set(element, element.textContent);
+    }
+  }
   function renderTimer() {
     const complete = state.status === 'complete';
     const segment = complete ? null : plan[state.index];
@@ -281,6 +363,7 @@
     const finalRoundRest = !complete && segment.kind === 'roundRest' && segment.round === settings.rounds;
     $('nextLabel').hidden = complete || (!finalRoundRest && !next);
     $('nextText').textContent = complete ? 'Dein Workout ist abgeschlossen.' : finalRoundRest ? 'Geschafft!' : next ? next.title : 'Letztes Intervall – zieh durch!';
+    fitExerciseTitles();
     const exerciseTotal = settings.exercises.length;
     let exerciseNumber = exerciseTotal;
     if (!complete) {
@@ -332,7 +415,7 @@
     if (changed) {
       const phase = plan[state.index];
       phaseSound(phase.kind);
-      say(`${phases[phase.kind]}. ${phase.title}. ${phase.seconds} Sekunden.`);
+      say(`${phase.kind === 'rest' ? 'Pause' : phase.title}. ${phase.seconds} Sekunden.`);
     }
   }
   function tick() {
@@ -358,11 +441,11 @@
     if (state.status === 'complete') { reset(false); }
     if (state.status === 'running') {
       tick(); if (state.status !== 'running') return;
-      state.status = 'paused'; stopTick(); releaseWakeLock(); say('Pausiert.'); setControlsDisabled(); renderTimer(); return;
+      state.status = 'paused'; stopTick(); releaseWakeLock(); window.speechSynthesis?.cancel(); $('screenreaderUpdates').textContent = 'Pausiert.'; setControlsDisabled(); renderTimer(); return;
     }
     prepareAudio(); state.status = 'running'; state.deadline = Date.now() + state.remainingMs;
     state.lastCue = -1; acquireWakeLock(); startTick();
-    say(`${plan[state.index].title} gestartet.`); setControlsDisabled(); renderTimer();
+    say(`${plan[state.index].kind === 'rest' ? 'Pause' : plan[state.index].title}.`); setControlsDisabled(); renderTimer();
   }
   function skip(delta) {
     if (state.status === 'complete') return;
@@ -375,7 +458,7 @@
     state.lastCue = -1;
     state.halfCue = false;
     if (state.status === 'running') phaseSound(plan[target].kind);
-    say(`${plan[target].title}.`);
+    say(`${plan[target].kind === 'rest' ? 'Pause' : plan[target].title}.`);
     renderTimer();
   }
   function finish() {
@@ -383,6 +466,7 @@
     phaseSound('complete'); say('Workout abgeschlossen. Stark gemacht!'); setControlsDisabled(); renderTimer();
   }
   function reset(announce = true) {
+    window.speechSynthesis?.cancel();
     stopTick(); releaseWakeLock();
     state = { status: 'ready', index: 0, remainingMs: plan[0].seconds * 1000, deadline: 0, lastCue: -1, halfCue: false };
     lastRenderedSecond = -1; setControlsDisabled(); renderTimer();
@@ -419,7 +503,18 @@
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && !$('settingsPanel').hidden) setSettingsOpen(false);
   });
-  $('soundBtn').addEventListener('click', () => { settings.sound = !settings.sound; saveSettings(); setInputValues(); if (settings.sound) { prepareAudio(); tone(860, .15); } });
+  $('speechVoice').addEventListener('change', event => {
+    settings.speechVoice = event.target.value; saveSettings(); renderVoiceOptions();
+    window.speechSynthesis?.cancel();
+  });
+  $('voicePreview').addEventListener('click', () => speak('Liegestütze. 40 Sekunden. Danach: Kniebeugen.'));
+  window.speechSynthesis?.addEventListener('voiceschanged', renderVoiceOptions);
+  $('speechInput').addEventListener('change', event => {
+    settings.speech = event.target.checked; saveSettings(); renderVoiceOptions();
+    window.speechSynthesis?.cancel();
+    if (settings.speech) speak('Sprachausgabe aktiviert.');
+  });
+  $('soundBtn').addEventListener('click', () => { settings.sound = !settings.sound; if (!settings.sound) window.speechSynthesis?.cancel(); saveSettings(); setInputValues(); if (settings.sound) { prepareAudio(); tone(860, .15); } });
   $('playBtn').addEventListener('click', play);
   $('previousBtn').addEventListener('click', () => skip(-1));
   $('nextBtn').addEventListener('click', () => skip(1));
@@ -442,7 +537,12 @@
     applyPendingAppUpdate();
   });
   window.addEventListener('beforeunload', releaseWakeLock);
+  window.addEventListener('pagehide', () => window.speechSynthesis?.cancel());
   setInputValues(); renderExercises(); renderTimer();
+  const titleResizeObserver = new ResizeObserver(() => fitExerciseTitles(true));
+  titleResizeObserver.observe($('timer-heading'));
+  titleResizeObserver.observe($('nextText'));
+  document.fonts.ready.then(() => fitExerciseTitles(true));
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     navigator.serviceWorker.addEventListener('controllerchange', reloadForServiceWorkerUpdate);
     window.addEventListener('load', registerServiceWorker);

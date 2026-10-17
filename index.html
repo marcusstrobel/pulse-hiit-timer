@@ -11,9 +11,9 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/icon-180.png">
-  <link rel="stylesheet" href="./styles.css">
-  <script defer src="./timer-core.js"></script>
-  <script defer src="./app.js"></script>
+  <link rel="stylesheet" href="./styles.css?v=22">
+  <script defer src="./timer-core.js?v=22"></script>
+  <script defer src="./app.js?v=22"></script>
   <title>PULSE · HIIT Timer</title>
 </head>
 <body>
@@ -42,6 +42,7 @@
        <div class="sr-only" id="screenreaderUpdates" aria-live="polite" aria-atomic="true"></div>
       </section>
       <div id="settingsBackdrop" class="settings-backdrop" hidden></div><section id="settingsPanel" class="setup-panel settings-drawer" aria-label="Trainingsplan" aria-modal="true" role="dialog" hidden><div class="settings-drawer-bar"><div><span>EINSTELLUNGEN</span><strong>Workout konfigurieren</strong></div><button id="closeSettingsBtn" type="button" class="drawer-close" aria-label="Einstellungen schließen">×</button></div><div class="setup-top"><div><div class="eyebrow tiny">KONFIGURIERE DEIN TRAINING</div><h2>Workout-Setup<span class="heading-dot">.</span></h2></div><span class="plan-tag">HIIT LEVEL 3</span></div>
+      <div class="speech-setting"><label><input type="checkbox" id="speechInput" checked aria-describedby="speechHint"> Sprachausgabe</label><p id="speechHint">Deutsche Ansagen für Übungen und Pausen.</p><label class="voice-label" for="speechVoice">Stimme</label><select id="speechVoice" aria-describedby="voiceHint"><option value="">Automatisch (Deutsch)</option></select><p id="voiceHint"></p><button type="button" id="voicePreview" class="voice-preview">Hörprobe abspielen</button></div>
       <div class="stat-grid"><div class="stat-card"><div class="stat-icon icon-work">↗</div><span>BELASTUNG</span><strong><span id="statWork">40</span><small> SEK</small></strong></div><div class="stat-card"><div class="stat-icon icon-rest">⌁</div><span>PAUSE</span><strong><span id="statRest">20</span><small> SEK</small></strong></div><div class="stat-card"><div class="stat-icon icon-round">◎</div><span>RUNDEN</span><strong id="statRounds">03</strong></div></div>
       <div class="section-title"><span>01 <span class="slash">/</span> INTERVALLE</span><span class="section-title-hint">IN SEKUNDEN</span></div>
       <div class="settings-grid"><label class="setting"><span>Belastung</span><div class="number-box"><input type="number" id="workInput" min="5" max="600" step="5" inputmode="numeric" value="40" aria-label="Belastung in Sekunden"><span>SEC</span></div></label><label class="setting"><span>Übungspause</span><div class="number-box"><input type="number" id="restInput" min="0" max="600" step="5" inputmode="numeric" value="20" aria-label="Übungspause in Sekunden"><span>SEC</span></div></label><label class="setting"><span>Rundenpause</span><div class="number-box"><input type="number" id="roundRestInput" min="0" max="600" step="5" inputmode="numeric" value="60" aria-label="Rundenpause in Sekunden"><span>SEC</span></div></label><label class="setting"><span>Aufwärmen</span><div class="number-box"><input type="number" id="warmupInput" min="0" max="600" step="5" inputmode="numeric" value="60" aria-label="Aufwärmen in Sekunden"><span>SEC</span></div></label></div>

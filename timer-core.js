@@ -7,7 +7,9 @@
   const DEFAULTS = Object.freeze({
     work: 40, rest: 20, roundRest: 60, warmup: 60, rounds: 3,
     exercises: ['Liegestütze', 'Stehende Kurzhantel-Bizepscurls', 'Kniebeugen mit Hanteln', 'Schulterdrücken mit Kurzhanteln', 'Sit-Ups'],
-    sound: true
+    sound: true,
+    speech: true,
+    speechVoice: ''
   });
   function intInRange(value, fallback, min, max) {
     const n = Number(value);
@@ -24,7 +26,9 @@
       warmup: intInRange(raw.warmup, DEFAULTS.warmup, 0, 600),
       rounds: intInRange(raw.rounds, DEFAULTS.rounds, 1, 20),
       exercises: exercises.length ? exercises : [...DEFAULTS.exercises],
-      sound: typeof raw.sound === 'boolean' ? raw.sound : DEFAULTS.sound
+      sound: typeof raw.sound === 'boolean' ? raw.sound : DEFAULTS.sound,
+      speech: typeof raw.speech === 'boolean' ? raw.speech : DEFAULTS.speech,
+      speechVoice: typeof raw.speechVoice === 'string' ? raw.speechVoice.slice(0, 500) : ''
     };
   }
   function createPlan(raw) {

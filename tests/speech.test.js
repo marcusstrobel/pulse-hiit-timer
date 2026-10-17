@@ -1,0 +1,44 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const { normalize } = require('../timer-core');
+assert.equal(normalize({}).speech, true);
+assert.equal(normalize({ speech: false }).speech, false);
+assert.equal(normalize({ speech: 'false' }).speech, true);
+const source = fs.readFileSync(require.resolve('../app.js'), 'utf8');
+const speechFunction = source.slice(source.indexOf('  function speak(message)'), source.indexOf('  function say(message)'));
+const events = [];
+const german = { lang: 'de-DE', localService: true };
+const context = { settings: { sound: true, speech: true }, window: {
+  SpeechSynthesisUtterance: function (text) { this.text = text; },
+  speechSynthesis: { cancel() { events.push('cancel'); }, getVoices() { return [{ lang: 'en-US' }, german]; }, speak(value) { events.push(value); } }
+} };
+vm.createContext(context);
+vm.runInContext(speechFunction, context);
+context.speak('Liegestütze');
+assert.equal(events[0], 'cancel');
+assert.equal(events[1].text, 'Liegestütze');
+assert.equal(events[1].voice, german);
+assert.equal(events[1].volume, 1);
+context.settings.sound = false;
+context.speak('Stumm');
+assert.equal(events.length, 2);
+context.settings.sound = true;
+context.settings.speech = false;
+context.speak('Stumm');
+assert.equal(events.length, 2);
+context.settings.speech = true;
+const selectedVoice = { voiceURI: 'chosen-voice', lang: 'de-AT', localService: true };
+context.window.speechSynthesis.getVoices = () => [german, selectedVoice];
+context.settings.speechVoice = 'chosen-voice';
+context.speak('Ausgewählte Stimme');
+assert.equal(events.at(-1).voice, selectedVoice);
+assert.equal(events.at(-1).lang, 'de-AT');
+context.settings.speechVoice = 'missing';
+context.speak('Automatischer Ersatz');
+assert.equal(events.at(-1).voice, german);
+assert.equal(normalize({ speechVoice: 'chosen-voice' }).speechVoice, 'chosen-voice');
+assert.equal(normalize({ speechVoice: null }).speechVoice, '');
+delete context.window.speechSynthesis;
+assert.doesNotThrow(() => context.speak('Nicht unterstützt'));
+console.log('PASS: Spracheinstellung, deutsche Stimme, volle Lautstärke, Stummschaltung, Browser-Fallback');
